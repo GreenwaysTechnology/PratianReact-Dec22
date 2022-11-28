@@ -1,0 +1,227 @@
+What is React?
+
+React is javascript lib for building user interfaces.
+
+User interface:
+
+1.Desktop client
+2.Browser based apps
+3.Mobile apps
+4.TV,Watch...
+
+React focus for many ui technologies.
+
+React is used now a days 
+1.browser apps -React DOM - react.js
+2.Mobile apps -React Native
+
+React focus is less code,declarative.
+
+React is built on many design patterns and principles
+ =>Flex Design pattern.
+ =>Component driven design
+
+React tech stack.
+ ES 6,HTML5,CSS 3
+ JSX - lanaguage created by face book in order built declarative user interface.
+
+
+ES 6:
+ let const
+ literals
+ functional programming -higher order function
+ object based programming features - objects,literals,classes,destructuring
+ async programming features - callbacks,promises,async..await..
+
+Types of User interface app development types (react apps):
+1.Single page web app - spa
+2.Full Stack /SSR - Server side rendering - Next.js / 
+3.JAMStack/SSG (Static Site Generation) -Static content -Next.js/ Gatsby
+
+Tools chains:
+ To build different types of react apps we have tools.
+
+1.create-react-app  - spa
+2.Neutrino
+3.Nx
+4.Parcel
+5.Razzle
+6.Vite
+
+When to select what tool?
+
+if you are building spa - create-react-app
+if you are building server-rendered app with node.js - next.js - nx
+if you are building ssg apps - gatsby
+
+package management tools
+
+1.npm
+2.npx
+3.yarn
+
+Project setup
+Node.js
+vs code
+
+Create Project:
+E:\session\pratian\dec22\ReactSession>npx create-react-app myapp
+
+
+Components:
+ Object, having properties and behaviours and user interface.
+Componets are organized as tree -  compoent tree.
+
+How to create components?
+
+1.variable pattern
+import React from 'react'
+import ReactDOM from 'react-dom/client';
+
+//variable pattern 
+const Greeter = <h1>Greet</h1>
+
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(Greeter);
+
+
+2.functional pattern
+import React from 'react'
+import ReactDOM from 'react-dom/client';
+
+// function Greeter() {
+//     return <h1>Greeter</h1>
+// }
+
+// const Greeter = () => {
+//     return <h1>Greeter</h1>
+// }
+const Greeter = () => <h1>Greeter</h1>
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Greeter />);
+
+3.class pattern
+import React from 'react'
+import ReactDOM from 'react-dom/client';
+
+// es 6 class 
+class Greeter extends React.Component {
+    render() {
+        return <h1>Greeter!!</h1>
+    }
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Greeter />);
+
+
+Note:
+ Now a days we never use class components only functional components.
+
+....................................................................................
+			Component Composition: Compoent tree model
+....................................................................................
+
+if you understand , html structure, you can understand component tree model.
+
+Block of Ui:
+
+
+<div>
+<div>
+  <div>
+    <h1>Rice Atta & Dal<h1>	
+  </div>
+  <div>
+    <h1>Rice Atta & Dal<h1>	
+  </div>
+<div>
+<div>
+  Recommendations
+</div>
+<div>
+</div>
+
+</div>
+
+Component tree / Object tree
+
+Header - Component -  User Interface---| Data - Biz logic
+Adv - Component
+Body -Component
+ <Products> -Component
+   <Category>
+     <h1>Fresh Items
+   </Category>
+ </Products>
+
+<Footer>
+
+Project Structuring:
+...................
+
+src
+ |
+ components
+  |
+ assets
+ models
+ services
+ 
+....................................................................................
+
+Components are saved fileName.js / FileName.jsx - jsx is recommended
+
+Note: 
+ Inside root dir, App  /index /any component cant be saved as "jsx".
+
+ index.js or App.js 
+
+Barrel Export:
+.............
+
+folder
+  -file1.js /jsx
+  -file2.js
+  -file3.js
+  -file4.js
+
+Without barrel export
+when you import from another file
+
+import {something} from './folder/file1'
+import {something} from './folder/file2'
+import {something} from './folder/file3'
+
+With barrel export
+
+
+folder
+  -file1.js /jsx
+  -file2.js
+  -file3.js
+  -file4.js
+  -index.js
+
+folder/index.js
+ import { ProductList } from './products-list'
+import { ProductRecommendation } from './productrecommendation'
+
+//re export -barrel export
+
+export { ProductList, ProductRecommendation }
+
+
+src/
+ index.js or any where you import.
+
+
+
+
+
+
+
+
