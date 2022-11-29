@@ -217,6 +217,826 @@ export { ProductList, ProductRecommendation }
 
 src/
  index.js or any where you import.
+.....................................................................................
+				Data binding
+.....................................................................................
+
+User interface types:
+
+1.static user interface
+   having only html
+2.dynamic user interface
+  data and html
+
+Data binding:
+............
+ {variable/expression/literal}
+data can be primitive /object/array.
+
+
+Data can be passed in react two ways
+
+1.From outside component - props pattern
+2.Within Component - state pattern
+
+Props pattern : data is passed from parent to child component - one way data flow/Flex pattern.
+
+Props Pattern:
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+//Child component
+//all parameters are received by a component as a single literal object which is called property or props
+const Greeter = (props) => {
+    console.log(props)
+    return <h1>{props.message} {props.name}</h1>
+}
+
+//Parent Component
+const App = () => {
+    //imperative style:Not recommended to call function like this 
+    // return Greeter('Subramanian')
+    //jsx syntax: declartive style
+    return <div>
+        <Greeter name="Subramanian" message="Hello" />
+        <Greeter name="Karthik" message="Hi" />
+    </div>
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+
+..................................................................................
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+// const Profile = props => {
+//     return <div>
+//         <h1>Id : {props.id}</h1>
+//         <p>Name : {props.name}</p>
+//         <p>Status : {props.status ? "Available" : "Not Available"}</p>
+//         <p>Address</p>
+//         <address>
+//             <p>{props.address.street}</p>
+//             <p>{props.address.city}</p>
+//             <p>{props.address.state}</p>
+//         </address>
+//     </div>
+// }
+
+//using object destructuring
+// const Profile = props => {
+//     const { id, name, status, address: { city, street, state } } = props
+//     return <div>
+//         <h1>Id : {id}</h1>
+//         <p>Name : {name}</p>
+//         <p>Status : {status ? "Available" : "Not Available"}</p>
+//         <p>Address</p>
+//         <address>
+//             <p>{street}</p>
+//             <p>{city}</p>
+//             <p>{state}</p>
+//         </address>
+//     </div>
+// }
+
+const Profile = ({ id, name, status, address: { city, street, state } }) => <div>
+    <h1>Id : {id}</h1>
+    <p>Name : {name}</p>
+    <p>Status : {status ? "Available" : "Not Available"}</p>
+    <p>Address</p>
+    <address>
+        <p>{street}</p>
+        <p>{city}</p>
+        <p>{state}</p>
+    </address>
+</div>
+
+
+//Parent Component
+const App = () => {
+    const address = {
+        street: '10th street',
+        city: 'Coimbatore',
+        state: 'Tamil Nadu'
+    }
+    return <div>
+        <Profile id={1} name="Subramanian" status={true} address={address} />
+        <Profile id={2} name="Subramanian" status={true} address={address} />
+        <Profile id={3} name="Subramanian" status={true} address={address} />
+    </div>
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+.................................................................................
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+const Profile = props => {
+    return <div>
+        <h1>Id : {props.id}</h1>
+        <p>Name : {props.name}</p>
+        <p>Status : {props.status ? "Available" : "Not Available"}</p>
+        <p>Address</p>
+        <address>
+            <p>{props.address.street}</p>
+            <p>{props.address.city}</p>
+            <p>{props.address.state}</p>
+        </address>
+    </div>
+}
+//default Props 
+Profile.defaultProps = {
+    id: 0,
+    name: 'default',
+    status: false,
+    address: {
+        street: 'street',
+        city: 'city',
+        state: 'state'
+    }
+}
+
+
+
+
+//using object destructuring
+// const Profile = props => {
+//     const { id, name, status, address: { city, street, state } } = props
+//     return <div>
+//         <h1>Id : {id}</h1>
+//         <p>Name : {name}</p>
+//         <p>Status : {status ? "Available" : "Not Available"}</p>
+//         <p>Address</p>
+//         <address>
+//             <p>{street}</p>
+//             <p>{city}</p>
+//             <p>{state}</p>
+//         </address>
+//     </div>
+// }
+
+// const Profile = ({ id, name, status, address: { city, street, state } }) => <div>
+//     <h1>Id : {id}</h1>
+//     <p>Name : {name}</p>
+//     <p>Status : {status ? "Available" : "Not Available"}</p>
+//     <p>Address</p>
+//     <address>
+//         <p>{street}</p>
+//         <p>{city}</p>
+//         <p>{state}</p>
+//     </address>
+// </div>
+
+
+//Parent Component
+const App = () => {
+    const address = {
+        street: '10th street',
+        city: 'Coimbatore',
+        state: 'Tamil Nadu'
+    }
+    return <div>
+        {/* <Profile id={1} name="Subramanian" status={true} address={address} /> */}
+        <Profile />
+        <Profile id={1} name="Subramanian" status={true} address={address} />
+        <Profile id={2} name="Ram" status={true} />
+
+    </div>
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+...................................................................................
+		How to break the big UI into smaller and smaller Component and how to share data 
+			   Uni Directional Data flow model
+
+
+eg:
+ Comment <------------------------------> CommentData
+   -UserInfo 
+	|
+	<Logo/Avatar>
+        User Name
+        <Comment-Test>
+        <Comment-Data>
+
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+function formateDate(date) {
+    return date.toLocaleDateString()
+
+}
+
+//without breaking 
+const Comment = props => {
+    return <div className="comment">
+        <div className="userinfo">
+            {/* Segment -1 */}
+            <div className="avatar">
+                <img src={props.author.avatarUrl} alt="Author Name" />
+            </div>
+            {/* Segment 2 */}
+            <div className="username">
+                <p>{props.author.name}</p>
+            </div>
+            {/* Segment 3 */}
+            <div className="commenttext">
+                <p>{props.text}</p>
+            </div>
+            {/* Segment 4 */}
+            <div className="commentdate">
+                {formateDate(props.date)}
+            </div>
+        </div>
+    </div>
+}
+
+const App = () => {
+    //pass data to the comments:this data may come from api later 
+    const comment = {
+        date: new Date(),
+        text: 'React is awesome lib',
+        author: {
+            name: 'Subramanian',
+            avatarUrl: 'http://placekitten.com/g/64/64'
+        }
+    }
+
+    return <>
+        <Comment date={comment.date} text={comment.text} author={comment.author} />
+    </>
+}
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+
+rootElement.render(<App />)
+...................................................................................
+
+How to extract Components?
+Avatar
+UserInfo
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+function formateDate(date) {
+    return date.toLocaleDateString()
+
+}
+export const Avatar = props => {
+    return <div className="avatar">
+        <img src={props.avatarUrl} alt="Author Name" />
+    </div>
+}
+export const User = props => {
+    return <div>
+        <p>{props.name}</p>
+    </div>
+}
+
+export const UserInfo = props => {
+    return <div className="userinfo">
+        <Avatar avatarUrl={props.author.avatarUrl} />
+        <User name={props.author.name} />
+    </div>
+}
+export const CommentDetails = props => {
+    return <div>
+        <div className="commenttext">
+            <p>{props.text}</p>
+        </div>
+        <div className="commentdate">
+            {formateDate(props.date)}
+        </div>
+    </div>
+}
+//with breaking 
+export const Comment = props => {
+    return <div className="comment">
+        <div className="userinfo">
+            <UserInfo author={props.author} />
+        </div>
+        <div>
+            <CommentDetails text={props.text} date={props.date} />
+        </div>
+    </div>
+}
+
+
+export const App = () => {
+    //pass data to the comments:this data may come from api later 
+    const comment = {
+        date: new Date(),
+        text: 'React is awesome lib',
+        author: {
+            name: 'Subramanian',
+            avatarUrl: 'http://placekitten.com/g/64/64'
+        }
+    }
+
+    return <>
+        <Comment date={comment.date} text={comment.text} author={comment.author} />
+    </>
+}
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+
+rootElement.render(<App />)
+....................................................................................
+
+Property Rethrow:
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+//master compoent 
+const ProfileMaster = props => <div>
+    {/*passing the entire properties to child compoent  */}
+    {/* <ProfileDetails id={props.id} name={props.name} status={props.status} address={props.address} /> */}
+    {/* Property rethrow: you dont need to pass each and every property manually */}
+    <ProfileDetails {...props} title="Profile Details" />
+</div>
+
+//details component
+const ProfileDetails = props => <div>
+    <h1>{props.title}</h1>
+    <h1>Id : {props.id}</h1>
+    <p>Name : {props.name}</p>
+    <p>Status : {props.status ? "Available" : "Not Available"}</p>
+    <p>Address</p>
+    <address>
+        <p>{props.address.street}</p>
+        <p>{props.address.city}</p>
+        <p>{props.address.state}</p>
+    </address>
+</div>
+
+export const App = () => {
+    const address = {
+        street: '10th street',
+        city: 'Coimbatore',
+        state: 'Tamil Nadu'
+    }
+    return <ProfileMaster id={1} name="Subramanian" status={true} address={address} />
+}
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+
+rootElement.render(<App />)
+....................................................................................
+....................................................................................
+				Event Handling
+....................................................................................
+
+Handling events with React elements is very similar to handling events on DOM elements.
+
+Event Listeners:
+  are functions/methods are get Executed when something happens on ui element
+like click,touch,tap,press..
+
+How to attach event listeners in react?
+ React events are named using camelCase , rather than lowercase.
+
+HTML and Js event handlings
+
+<button onclick="save"/>
+
+React syntax
+
+<button onClick={methodName}/>
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+const style = {
+    textAlign: 'center',
+}
+//state 
+class Rating extends React.Component {
+    //state declaration
+    state = {
+        rating: 0
+    }
+    //listener
+    onRate = () => {
+        console.log('onRate')
+    }
+
+    render() {
+        console.log(this.state)
+        return <div >
+            <h1 style={style}>Rating App</h1>
+            <div>
+                <h2>Rating : {this.state.rating}</h2>
+                <button onClick={this.onRate} >+</button>
+            </div>
+        </div>
+    }
+}
+
+const App = () => {
+    return <>
+        <Rating />
+    </>
+}
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+
+rootElement.render(<App />)
+.....................................................................................
+			  Functional Programming principles
+.....................................................................................
+                              Pure Functions
+
+
+Rule A:
+  If function receives input, the function returns the same input without any mutation.
+
+//pure functions
+
+//Rule:A
+//If function receives input, the function returns the same input without any mutation.
+
+//impure function
+// function displayProfile(profile) {
+//     profile.city = 'Delhi'
+//     return profile
+// }
+//pure function
+function displayProfile(profile) {
+    //profile.city = 'Delhi'
+    return profile
+}
+let profile = {
+    id: 1,
+    name: 'Subramanian',
+    city: 'Coimbatore'
+}
+displayProfile(profile)
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+//Every component is pure function, props are read only 
+const Profile = props => {
+    //props.city = 'Delhi' 
+    return <div>
+        <p>{props.id}</p>
+        <p>{props.name}</p>
+        <p>{props.city}</p>
+
+    </div>
+}
+const App = () => {
+    const profile = {
+        id: 1,
+        name: 'Subramanian',
+        city: 'Coimbatore'
+
+    }
+    return <Profile id={profile.id} name={profile.name} city={profile.city} />
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+Rule B:
+
+Rule B:
+
+ What if function receives input, need to be mutated but it should follow the pure function rule.
+
+With help of "Immutablity"
+
+What is immutable?
+
+creating new object every time when you update the object , immutablity.
+
+if the function does that , that function is called pure function.
+
+pure function must return, "immutable object".
+
+
+//impure function :it does not return immutable object 
+// function updateProfile(profile,city) {
+//     profile.city = city 
+//     return profile ;
+// }
+
+//return new object after modifiication/mutation
+
+//way -1 : create new object and copy the all the properties and update the property which you want to modify
+// function updateProfile(profile, city) {
+//     return {
+//         id: profile.id,
+//         name: profile.name,
+//         city: city
+//     }
+// }
+
+//way 2 : clone api 
+// function updateProfile(profile, city) {
+//     return Object.assign({}, profile, { city: city })
+// }
+//way 3: using spread operator(...)
+function updateProfile(profile, city) {
+    return { ...profile, city: city }
+}
+let profile = {
+    id: 1,
+    name: 'Subramanian',
+    city: 'Delhi'
+}
+console.log('before update', profile)
+let result = updateProfile(profile, 'Coimbatore')
+console.log('after update', result)
+//Test whether function is pure or not: the function returns the same object or different object.
+console.log('same profile ', profile === result ? 'same' : 'different')
+
+..................................................................................
+				Arrays and immutablity
+...................................................................................
+
+
+
+//impure function :it does not return immutable object 
+// function updateProfile(profile,city) {
+//     profile.city = city 
+//     return profile ;
+// }
+
+//return new object after modifiication/mutation
+
+//way -1 : create new object and copy the all the properties and update the property which you want to modify
+// function updateProfile(profile, city) {
+//     return {
+//         id: profile.id,
+//         name: profile.name,
+//         city: city
+//     }
+// }
+
+//way 2 : clone api 
+// function updateProfile(profile, city) {
+//     return Object.assign({}, profile, { city: city })
+// }
+//way 3: using spread operator(...)
+function updateProfile(profile, city) {
+    return { ...profile, city: city }
+}
+let profile = {
+    id: 1,
+    name: 'Subramanian',
+    city: 'Delhi'
+}
+console.log('before update', profile)
+let result = updateProfile(profile, 'Coimbatore')
+console.log('after update', result)
+//Test whether function is pure or not: the function returns the same object or different object.
+console.log('same profile ', profile === result ? 'same' : 'different')
+/////////////////////////////////////////////////////////////////////////////////////
+                   //Arrays and immutablity
+
+//impure function
+//array push method modifies existing array memory address
+//push is mutable api : dont use
+// function addTodo(todos, todo) {
+//     return todos.push(todo) // modifies the existing array.
+// }    
+// //pure function
+// function addTodo(todos, todo) {
+//     return todos.concat(todo) //returns new array after add
+// }
+function addTodo(todos, todo) {
+    return [...todos,todo] //returns new array after add
+}
+let todos = [{
+    title: 'Learn react',
+    done: true
+}];
+Object.freeze(todos)
+let addedTodos = addTodo(todos, { title: 'Learn Pure functions', done: false })
+console.log(addedTodos)
+
+
+Array Pure functions api
+
+1.concat - add
+2.map - iterations
+3.filter - iterations with filtering
+4.reduce - iterations with filtering
+
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+class Counter extends React.Component {
+    //component's data is encapsulated inside state variable
+    state = {
+        //data 
+        counter: 0 // inital state /Current State
+    }
+    //event listener
+    onIncrement = () => {
+        // console.log('onIncrement')
+        // this.setState((prvState) => {
+        //     //return immutable object(immutable state)
+        //     return {
+        //         counter: prvState.counter + 1
+        //     }
+        // })
+        this.setState((prvState) => {
+            //return Object.assign({}, prvState, { counter: prvState.counter + 1 })
+            return { ...prvState, counter: prvState.counter + 1 }
+        })
+    }
+
+    render() {
+        console.log(this.state)
+        return <div>
+            <h1>Counter App</h1>
+            <h2>Counter Value {this.state.counter}</h2>
+            <button onClick={this.onIncrement}>+</button>
+        </div>
+    }
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)     
+....................................................................................
+			Component Responsiablity
+....................................................................................
+
+The component may have state+biz+ui
+
+if the component having state and biz logic, should not have ui logic, you have to pass state as prop to another component.
+
+Parent - Child
+ state  --prop
+
+State as prop -  dynamic props.
+.....................................................................................
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+class Counter extends React.Component {
+    state = {
+        //data 
+        counter: 10 // inital state /Current State
+    }
+    //event listener
+    onIncrement = () => {
+        this.setState((prvState) => {
+            return { ...prvState, counter: prvState.counter + 1 }
+        })
+    }
+
+    render() {
+        return <CounterDashBoard counter={this.state.counter} onIncrement={this.onIncrement} />
+    }
+}
+
+//child component
+export const CounterDashBoard = props => {
+    return <div>
+        <h1>Counter App</h1>
+        <h2>Counter Value {props.counter}</h2>
+        <button onClick={props.onIncrement}>+</button>
+    </div>
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)     
+.....................................................................................
+			More state variables
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+class Comment extends React.Component {
+    state = {
+        like: 0,
+        dislike: 0,
+        nutral: 0
+    }
+    //event listener
+    onLike = () => {
+        this.setState(prvState => {
+            return {
+                like: prvState.like + 1,
+                dislike: prvState.dislike,
+                nutral: prvState.nutral
+            }
+        })
+    }
+    onDisLike = () => {
+        this.setState(prvState => {
+            return {
+                like: prvState.like,
+                dislike: prvState.dislike + 1,
+                nutral: prvState.nutral
+            }
+        })
+    }
+    onNutural = () => {
+        this.setState(prvState => {
+            return {
+                like: prvState.like,
+                dislike: prvState.dislike,
+                nutral: prvState.nutral + 1
+            }
+        })
+    }
+
+    render() {
+
+        console.log('Current State=>', this.state)
+        // return <CommentDashBoard like={this.state.like} dislike={this.state.dislike} nutral={this.state.nutral} onLike={this.onLike} onDisLike={this.onDisLike} onNutural={this.onNutural} />
+        return <CommentDashBoard {...this.state} onLike={this.onLike} onDisLike={this.onDisLike} onNutural={this.onNutural} />
+    }
+}
+
+//child component
+export const CommentDashBoard = props => {
+    return <div>
+        <h1>Comment App</h1>
+        <h2>Like {props.like} Dislike {props.dislike} Nutral {props.nutral}</h2>
+        <button onClick={props.onLike}>Like</button>
+        <button onClick={props.onDisLike}>DisLike</button>
+        <button onClick={props.onNutural}>Nutral</button>
+
+    </div>
+}
+
+const App = () => <div>
+    <Comment />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)     
+...................................................................................
+				List Rendering
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { TODOS } from "./mock-data/todos";
+
+// const TodoList = props => {
+//     return <div>
+//         <ul>
+//             {
+//                 props.todos.map(todo => {
+//                     return <TodoDetails key={todo.id} title={todo.title} />
+//                 })
+//             }
+//         </ul>
+//     </div>
+// }
+
+const TodoList = props => {
+    return <div>
+        <ul>
+            {
+                props.todos.map(todo => <TodoDetails key={todo.id} title={todo.title} />)
+            }
+        </ul>
+    </div>
+}
+const TodoDetails = ({ title }) => <li>{title}</li>
+
+const App = () => <div>
+    <TodoList todos={TODOS} />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)     
+
+		
+
+
+
+
+
+
+
+
+
+
 
 
 
