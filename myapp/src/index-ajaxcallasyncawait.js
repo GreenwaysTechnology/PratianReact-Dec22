@@ -9,9 +9,6 @@ const Spinner = props => <div>
     <h2>Loading....</h2>
 </div>
 
-const style = {
-    cursor: 'pointer'
-}
 class Todos extends Component {
     //state to hold data
     state = {
@@ -28,15 +25,10 @@ class Todos extends Component {
         } else if (!isLoaded) {
             return <Spinner />
         } else {
-            return <div style={{ marginLeft: 150 }}>
-                <div>
-                    <h1>Todo Details</h1>
-                </div>
-                <hr />
+            return <div>
                 {
                     todos.map(todo => <div key={todo.id}>
-                        <span style={style}>{todo.title}</span>
-                        <hr />
+                        <span>{todo.title}</span>
                     </div>)
                 }
             </div>
@@ -68,4 +60,4 @@ const App = () => <div>
 </div>
 
 const rootElement = ReactDOM.createRoot(document.getElementById('root'))
-rootElement.render(<App />)  
+rootElement.render(<App />)   
