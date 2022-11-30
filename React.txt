@@ -1025,9 +1025,270 @@ const App = () => <div>
 
 const rootElement = ReactDOM.createRoot(document.getElementById('root'))
 rootElement.render(<App />)     
+.....................................................................................
+			  Component Life cycle
+....................................................................................
+https://projects.wojtekmaj.pl/react-lifecycle-methods-diagram/		
 
-		
+Component Life cycles has three phases
 
+1.mount - inital phase
+ constructor
+ render - creating v dom / v dom tree
+ componentDidMount
+
+2.update
+
+3.unmount
+
+
+
+render===>vdom==>fed into target==>componentDidMount
+
+what is role of render?
+  Just prepare fresh vdom
+
+What is role componentDidMount?
+  any resource intensive tasks
+
+1.timers - any async operations
+2.ajax -api calls 
+3.websocket calls
+4.rxjs subscriptions
+
+..........
+
+eg:
+import React, { Component } from "react";
+import ReactDOM from "react-dom/client";
+
+class Parent extends Component {
+    constructor() {
+        super() // calling super class constructor
+        console.log('Parent Constructor is called')
+    }
+    render() {
+        console.log('Parent render is called')
+
+        return <div>
+                <Child/>
+        </div>
+    }
+    componentDidMount() {
+        console.log('Parent did Mount is called')
+    }
+}
+
+
+class Child extends Component {
+    constructor() {
+        super() // calling super class constructor
+        console.log('Child Constructor is called')
+    }
+    render() {
+        console.log('Child render is called')
+
+        return <div>
+
+        </div>
+    }
+    componentDidMount() {
+        console.log('Child did Mount is called')
+    }
+}
+
+const App = () => <div>
+    <Parent/>
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)     
+....................................................................................
+			Web service Integration
+....................................................................................
+
+ajax apis:
+React has no separate ajax apis.
+
+react says you can use any third party ajax libs
+
+1.fetch
+2.axios
+3.jquery ajax
+etc..any ajax...
+
+fetch:
+https://developers.google.com/web/shows/google-io/2015/fetch
+
+fetch features:
+1.browser native
+2.fetch is promise powered
+
+Async:
+callbacks
+promise with thenables
+promise with async await
+
+
+import React, { Component } from "react";
+import ReactDOM from "react-dom/client";
+
+//error Component
+const ErrorMessage = props => <div>
+    {props.error}
+</div>
+const Spinner = props => <div>
+    <h2>Loading....</h2>
+</div>
+
+
+class Todos extends Component {
+    //state to hold data
+    state = {
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [] // data
+    }
+    render() {
+        //Conditional rendering:based on ui state we need to show component
+        const { error, isLoaded, todos } = this.state;
+        if (error) {
+            return <ErrorMessage error={error} />
+        } else if (!isLoaded) {
+            return <Spinner />
+        } else {
+            return <div>
+                {
+                    todos.map(todo => <div key={todo.id}>
+                        <span>{todo.title}</span>
+                    </div>)
+                }
+            </div>
+        }
+    }
+    componentDidMount() {
+        //api call to fetch data from the end point 
+        // setTimeout(() => {
+        //     const url = 'https://jsonplaceholder.typicode.com/todos'
+        //     fetch(url)
+        //         .then(response => response.json())
+        //         .then(todos => {
+        //             this.setState(previousState => {
+        //                 return {
+        //                     ...previousState,
+        //                     todos: previousState.todos.concat(todos),
+        //                     isLoaded: true
+        //                 };
+        //             });
+
+        //         }).catch(err => {
+        //             console.log(err)
+        //         })
+        // }, 5000)
+
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url)
+            .then(response => response.json())
+            .then(todos => {
+                this.setState(previousState => {
+                    return {
+                        ...previousState,
+                        todos: previousState.todos.concat(todos),
+                        isLoaded: true
+                    };
+                });
+
+            }).catch(err => {
+                console.log(err)
+            })
+    
+}
+}
+
+
+
+
+const App = () => <div>
+    <Todos />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)   
+
+.....................................................................................
+Short cut : using async..await..
+
+import React, { Component } from "react";
+import ReactDOM from "react-dom/client";
+
+//error Component
+const ErrorMessage = props => <div>
+    {props.error}
+</div>
+const Spinner = props => <div>
+    <h2>Loading....</h2>
+</div>
+
+class Todos extends Component {
+    //state to hold data
+    state = {
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [] // data
+    }
+    render() {
+        //Conditional rendering:based on ui state we need to show component
+        const { error, isLoaded, todos } = this.state;
+        // Task for you : to organize this ui into separate components
+        if (error) {
+            return <ErrorMessage error={error} />
+        } else if (!isLoaded) {
+            return <Spinner />
+        } else {
+            return <div>
+                {
+                    todos.map(todo => <div key={todo.id}>
+                        <span>{todo.title}</span>
+                    </div>)
+                }
+            </div>
+        }
+    }
+    async componentDidMount() {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        try {
+            const todos = await (await fetch(url)).json()
+            this.setState({
+                todos: todos,
+                isLoaded: true
+            })
+        } catch (error) {
+            this.setState({
+                isLoaded: true,
+                error
+            });
+        }
+
+    }
+}
+
+
+
+
+const App = () => <div>
+    <Todos />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)   
+
+
+
+
+
+
+
+				
 
 
 
