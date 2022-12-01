@@ -1359,6 +1359,653 @@ const App = () => <div>
 const rootElement = ReactDOM.createRoot(document.getElementById('root'))
 rootElement.render(<App />)     
 
+......................................................................................
+
+Conditional Rendering with Selected Item:
+import React, { Component } from "react";
+import ReactDOM from "react-dom/client";
+
+//error Component
+const ErrorMessage = props => <div>
+    {props.error}
+</div>
+const Spinner = props => <div>
+    <h2>Loading....</h2>
+</div>
+
+const style = {
+    cursor: 'pointer'
+}
+class Todos extends Component {
+    //state to hold data
+    state = {
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [], // data
+        todo: null
+    }
+    onSelected = async (id) => {
+        const url = `https://jsonplaceholder.typicode.com/todos/${id}`
+        try {
+            const todo = await (await fetch(url)).json() // 
+            this.setState({
+                todo: todo,
+            })
+            console.log(todo)
+        } catch (error) {
+            this.setState({
+                isLoaded: true,
+                error
+            });
+        }
+    }
+
+    render() {
+        //Conditional rendering:based on ui state we need to show component
+        const { error, isLoaded, todos, todo } = this.state;
+        // Task for you : to organize this ui into separate components
+        if (error) {
+            return <ErrorMessage error={error} />
+        } else if (!isLoaded) {
+            return <Spinner />
+        } else {
+            return <div style={{ marginLeft: 150 }}>
+                <div style={{ backgroundColor: 'yellow' }}>
+                    {todo ? <>
+                        <h1>Todo Details</h1>
+                        <p>id: {todo.id}</p>
+                        <p>title: {todo.title}</p>
+                        <p>Status: {todo.completed ? 'Completed' : 'Not Completed'}</p>
+                    </> : ''}
+                </div>
+                <hr />
+                {
+                    todos.map(todo => <div key={todo.id}>
+                        <span onClick={() => {
+                            this.onSelected(todo.id)
+                        }} style={style}>{todo.title}</span>
+                        <hr />
+                    </div>)
+                }
+            </div>
+        }
+    }
+    async componentDidMount() {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        try {
+            const todos = await (await fetch(url)).json()
+            this.setState({
+                todos: todos,
+                isLoaded: true
+            })
+        } catch (error) {
+            this.setState({
+                isLoaded: true,
+                error
+            });
+        }
+
+    }
+}
+
+
+
+const App = () => <div>
+    <Todos />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)  
+.....................................................................................
+				Forms
+....................................................................................
+				EventTarget
+How to get User input?
+
+
+import React, { Component } from "react";
+import ReactDOM from "react-dom/client";
+
+class UserInput extends Component {
+    state = {
+        firstName: ''
+    }
+    // handleChange = evt => {
+    //     //Get Text Box Reference
+    //     const target = evt.target
+    //     console.log(target.value)
+    //     this.setState({
+    //         text: evt.target.value
+    //     })
+    // }
+    render() {
+        return <div style={{ margin: 50 }}>
+            <h1>{this.state.text}</h1>
+            <div>
+                {/* <input onChange={this.handleChange} /> */}
+                {/* on+EventName=> onBlur onUpdate onLeave */}
+                <input onChange={(evt) => {
+                    const target = evt.target
+                    console.log(target.value)
+                    this.setState({
+                        firstName: evt.target.value
+                    })
+                }} />
+            </div>
+            <button onClick={() => {
+
+            }}>Save</button>
+        </div>
+    }
+
+}
+
+
+
+const App = () => <div>
+    <UserInput />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)  
+...................................................................................
+			 Fragements
+...................................................................................
+
+JSX Basic rules:
+
+1.Every element must have been closed
+const Greeter = props=>{
+    return <div>
+        {/* element is closed */}
+        <h1>hello</h1>
+        {/* jsx:comments self closing */}
+        <img />
+    </div>
+}
+
+
+2.We cant have silbings directly without root element.
+
+const Hello = props => {
+    return <p>Hello</p>
+          <p>Hai</p>
+   
+}
+
+compile time error ; no parent containter element.
+
+what if i dont want container element like div,span,header,footer...
+
+In React 16 onwards, react introduced a concept fragments:
+   avoid compil time errors
+
+import React  from "react";
+import ReactDOM from "react-dom/client";
+
+const Greeter = props => {
+    return <div>
+        {/* element is closed */}
+        <h1>hello</h1>
+        {/* jsx:comments self closing */}
+        <img />
+    </div>
+}
+
+// const Hello = props => {
+//     return <React.Fragment>
+//         <p>Hello</p>
+//         <p>Hai</p>
+//     </React.Fragment>
+// }
+
+// const Hello = props => {
+//     return <Fragment>
+//         <p>Hello</p>
+//         <p>Hai</p>
+//     </Fragment>
+// }
+
+const Hello = props => {
+    return <>
+        <p>Hello</p>
+        <p>Hai</p>
+    </>
+}
+const App = () => <div>
+    <Hello />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)  
+
+eg:
+import React  from "react";
+import ReactDOM from "react-dom/client";
+
+const Greeter = props => {
+    return <div>
+        {/* element is closed */}
+        <h1>hello</h1>
+        {/* jsx:comments self closing */}
+        <img />
+    </div>
+}
+
+// const Hello = props => {
+//     return <React.Fragment>
+//         <p>Hello</p>
+//         <p>Hai</p>
+//     </React.Fragment>
+// }
+
+// const Hello = props => {
+//     return <Fragment>
+//         <p>Hello</p>
+//         <p>Hai</p>
+//     </Fragment>
+// }
+
+const Hello = props => {
+    return <>
+        <p>Hello</p>
+        <p>Hai</p>
+    </>
+}
+const App = () => <>
+    <Hello />
+</>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)  
+....................................................................................
+				Component as Prop
+....................................................................................
+
+const Link=()=><ul></ul>
+
+const Header=()=><header>
+   <Link/>
+</header>
+const Page = ()=><Header/>
+const App = ()=><Page/>
+
+<Page>
+   <Header>
+	<Logo></Logo>
+	<Link>
+	    <MenuBar></MenuBar>
+        </Link>
+   </Header>
+</Page>
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+
+const Link = props => {
+    return <>
+        {props.children}
+    </>
+}
+
+const Header = props => {
+    return <>
+        <h1>{props.title}</h1>
+        {props.children}
+    </>
+}
+const Footer = props => {
+    return <h1>Footer</h1>
+}
+
+const Page = props => <>
+    {props.children}
+</>
+
+const MenuItems = props => <ul>
+    <li><a href="#">profile</a></li>
+    <li><a href="#">services</a></li>
+    <li><a href="#">success stories</a></li>
+</ul>
+
+
+const MenuItems = props => <ul>
+     {props.datasource.map(item=>{
+       <li><a href=`${item}`>{item}</a></li>
+  })}
+</ul>
+
+const App = () => <div>
+    <Page>
+        {/* here Header Component passed as prop */}
+        <Header title="Customer Management">
+         <hr/>
+            <Link>
+                <MenuItems datasource={['profile','services','successstores']} />
+            </Link>
+        </Header>
+        <Footer>
+
+        </Footer>
+    </Page>
+</div>
+
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)  
+...................................................................................
+			     Hooks
+..................................................................................
+
+What is hook?
+ It is a new feature introduced in react 16.
+ Simple abstraction for class compoents-  how to remove classes from react.
+
+Intention is functional component for every things.
+
+objective of hooks:
+
+1.to eleminate class components as much possible.
+2.Resuable application behaviours
+   eg:ajax calls
+
+
+Hook is just simple javascript function.
+which may take arg or may not.
+Which may or may not return something 	
+
+
+every hook function starts with
+  "use"+functionName ==>hook Syntax
+
+eg:
+"useState"
+"useContext"
+"useEffect"
+"useAjax"
+"useWebSocket"
+"useLayout"
+etc....
+you can create your own hooks as well.
+
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
+
+class Counter__ extends React.Component {
+    //component's data is encapsulated inside state variable
+    state = {
+        //data 
+        counter: 0 // inital state /Current State
+    }
+    //event listener
+    onIncrement = () => {
+
+        this.setState((prvState) => {
+            //return Object.assign({}, prvState, { counter: prvState.counter + 1 })
+            return { ...prvState, counter: prvState.counter + 1 }
+        })
+    }
+
+    render() {
+        console.log(this.state)
+        return <div>
+            <h1>Counter App</h1>
+            <h2>Counter Value {this.state.counter}</h2>
+            <button onClick={this.onIncrement}>+</button>
+        </div>
+    }
+}
+
+//Functional Component using hooks:
+const Counter = props => {
+    //state declaration
+    const [count, setCount] = useState(0)
+    const onIncrement = () => {
+        // setCount(count => {
+        //     return count + 1
+        // })
+        setCount(count + 1)
+    }
+
+    return <div>
+        <h1>Counter App</h1>
+        <h2>Value : {count}</h2>
+        <button onClick={onIncrement}>+</button>
+    </div>
+}
+
+
+const App = () => <div>
+    <Counter />
+</div>
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />) 
+.....................................................................................
+			Multi state Hook
+.....................................................................................
+
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
+
+
+const Counter = props => {
+    //state declaration => state = {inc:0,dec:100}
+    const [inc, setInc] = useState(0)
+    const [dec, setDec] = useState(100)
+    //listener
+    const onIncrement = () => {
+        setInc(inc + 1)
+    }
+    const onIncrementByValue = (value) => {
+        setInc(inc + value)
+    }
+    return <div>
+        <h1>Counter App</h1>
+        <h2>Increment: {inc} Decrement {dec}</h2>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => setDec(dec - 1)}>-</button>
+        <button onClick={() => onIncrementByValue(2)}>DoubleIt</button>
+
+    </div>
+}
+
+
+const App = () => <div>
+    <Counter />
+</div>
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />) 
+..................................................................................
+			 Object inside Hook
+
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
+
+
+const Counter = props => {
+    //state = { counter:{ inc:0,dec:0} }
+    const [counter, setCounter] = useState({ inc: 0, dec: 100 })
+
+    const onIncrement = () => {
+        //
+        // setCounter(counter => {
+        //     return { ...counter, inc: counter.inc + 1 }
+        // })
+        // setCounter(counter =>({ ...counter, inc: counter.inc + 1 }))
+        setCounter(({ ...counter, inc: counter.inc + 1 }))
+
+    }
+
+    return <div>
+        <h1>Counter App</h1>
+        <h2>Increment: {counter.inc} Decrement {counter.dec}</h2>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => setCounter(({ ...counter, dec: counter.dec - 1 }))
+        }>-</button>
+
+
+    </div>
+}
+
+
+const App = () => <div>
+    <Counter />
+</div>
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />) 
+.....................................................................................
+			 Component Life Methods and Hooks
+...................................................................................
+import React, { Component, useEffect, useState } from "react";
+import ReactDOM from "react-dom/client";
+
+//error Component
+const ErrorMessage = props => <div>
+    {props.error}
+</div>
+const Spinner = props => <div>
+    <h2>Loading....</h2>
+</div>
+
+
+class Todos__ extends Component {
+    //state to hold data
+    state = {
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [] // data
+    }
+    render() {
+        //Conditional rendering:based on ui state we need to show component
+        const { error, isLoaded, todos } = this.state;
+        if (error) {
+            return <ErrorMessage error={error} />
+        } else if (!isLoaded) {
+            return <Spinner />
+        } else {
+            return <div>
+                {
+                    todos.map(todo => <div key={todo.id}>
+                        <span>{todo.title}</span>
+                    </div>)
+                }
+            </div>
+        }
+    }
+    componentDidMount() {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url)
+            .then(response => response.json())
+            .then(todos => {
+                this.setState(previousState => {
+                    return {
+                        ...previousState,
+                        todos: previousState.todos.concat(todos),
+                        isLoaded: true
+                    };
+                });
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////
+
+const Todos = props => {
+    const [items, setItems] = useState({
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [] // data
+    })
+    //componentDidMount
+    useEffect(() => {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url)
+            .then(response => response.json())
+            .then(todos => {
+                //Change this code in simple way
+                setItems(previousState => {
+                    return {
+                        ...previousState,
+                        todos: previousState.todos.concat(todos),
+                        isLoaded: true
+                    };
+                });
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+    }, [])
+
+    const { error, isLoaded, todos } = items;
+    if (error) {
+        return <ErrorMessage error={error} />
+    } else if (!isLoaded) {
+        return <Spinner />
+    } else {
+        return <div>
+            {
+                todos.map(todo => <div key={todo.id}>
+                    <span>{todo.title}</span>
+                </div>)
+            }
+        </div>
+    }
+}
+
+
+
+
+const App = () => <div>
+    <Todos />
+</div>
+
+const rootElement = ReactDOM.createRoot(document.getElementById('root'))
+rootElement.render(<App />)   
+...................................................................................
+
+Tasks:
+1.Code Refactoring
+ =>Convert thenables into async..await
+2.Select an item and show the item - using Hooks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
