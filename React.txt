@@ -1973,7 +1973,14 @@ Tasks:
  =>Convert thenables into async..await
 2.Select an item and show the item - using Hooks
 
-
+3.Create User Registeration Form
+    First Name
+    last Name
+    city -  select
+    Education - multi chechebox
+    Gender -  radio button
+  Submit - when you submit you have collect complete user information and show in the console.
+     
 
 
 
