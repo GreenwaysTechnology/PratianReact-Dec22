@@ -1980,33 +1980,497 @@ Tasks:
     Education - multi chechebox
     Gender -  radio button
   Submit - when you submit you have collect complete user information and show in the console.
-     
+.....................................................................................	  			     Redux -State Management
+....................................................................................
+
+What is Redux?
+
+  Redux is a pattern and lib for managining and updating application state, using event driven programming model.
+
+state : data
+In General state is encaspulated inside component, when ever we change /mutate the data , based on mutation we re render ui and update the ui based on "pure functions and immuability pattern".
 
 
+Why Redux? what is the problem of  encapsulating state inside component
 
 
+->if application has large amounts of state(data) , that are needed in many places in the app.
+->The app state is updated frequently over period of time.
+->The update logic is very complex.
+->If app is developed by many developer.
+
+Note: 
+ Not all apps need redux.
+
+Redux tools:
+
+1.redux.js
+  simple standalone javascript lib. redux core.
+
+2.react-redux
+  it is binding lib for connecting redux with react.
+
+3.redux toolkit
+   It is wrapper lib for old redux
+
+4.Redux dev tool
+  To inspect history of app state changes- time travel debugging.
+
+Core Concepts:
+
+if you look at the simple component
+
+import { useState } from "react"
+
+const Counter = props => {
+    //state: a counter
+    const [counter, setCounter] = useState(0)
+
+    //Action: code that causes an update to the state when something happens(cick button)
+    const increment = evt => {
+        setCounter(counter + 1);
+    }
+
+    //view: UI Definition
+    return <div>
+        Value : {counter} <button onClick={increment}>+</button>
+    </div>
+}
+
+This app contains
+
+1.state - Source of truth that drives application.
+2.The view - The declarative description of the UI based on current state
+3.The actions -The events that occur in the app based on user input,and trigger updates in the state.
 
 
+Patterns:
+
+1.immmutablity
+  - immutablity pattern helps to avoid state corruption when many components tries to update.
+
+2.Actions
+  Action is  request for redux to change the state 
+  Action is a plain javascript object( {}) that has a type field.
+  {type:''}
+  You can think of an action as an event that describes something that happened in the   application.
+ 
+syntax:
+
+  const actionName= { 
+    type:'domainname/eventname'    
+  } 
+
+  const increment= { 
+    type:'stock/increment'    
+  } 
+
+with payload : input
+
+  const increment= { 
+    type:'stock/increment',
+    payload: 'new Product'   
+  }
+
+2.2.Action Creators
+  Actions are requests.
+ Where as action creators are request creators -  function which returns action
+
+ function incrementStock(payload){
+    return { 
+    type:'stock/increment',
+    payload: payload   
+  }
+ }
+
+incrementStock('new Product');
+ 
+
+3.Reducers
+
+->A reducer function , that receives the request and process the request and returns response
+  -having biz logic
+->A reducer is pure function, should return always immutable datastructure(state)
+->You can think of reducer is like event listener which handles events based on event(action) type.
+
+Reducer has some basic rules
+
+1. reducer must take two args
+   -first arg initalstate, second arg is action(event => name of the event + payload).
+
+   function stockReducer(state=initState,action){
+   
+    
+   }
+2.reducer function must have body for event filtering and should return new state based on immutable logic
 
 
+   function stockReducer(state=initState,action){
+      switch(action.type){
+	case 'stock/increment':
+		return {...} //immutable ds
+	default
+	   return state;
+     }
+    
+   }
+
+3.store
+ Where the current redux application lives in an object called store.
+
+ Store is simple javascript object.
+
+Store contains two things
+
+-storage for application state - {}
+
+-apis for sending request,processing biz logic,sending response.....
 
 
+Store apis:
+
+1.Dispatch - store.dispatch()
+
+The only way to update the state is to call store.dispatch method by passing action object as parameter.
+
+ store.dispatch(action)----------->store
+
+As soon as the store receives the request, it will run/call/invoke the reducer function
+
+ store.dispatch(action)----------->store----run the reducer function
+
+As soon as the reducer gets called, it verifies the type of action it has come, computes the new state.
+
+ store.dispatch(action)----------->store----run the reducer function---return new State
+
+The reducer returns new state to the Store only--the previous state will be updated with new modified data.
 
 
+ store.dispatch(action)----------->store----run the reducer function---return new State --store.
+
+The store as soon recieves new state, it will run a listener "subcribe", where you can collect all the new state.
+
+From the listener, state can be given to UI-View
+
+ store.dispatch(action)----------->store----run the reducer function---return new State --store----subscribe-------VIEW.
 
 
+4.Selectors
+
+   Selector is function that know how to extract specific pieces of information from a store state value.
+
+ const value = select(store.getState())
 
 
+...
+
+store.subscribe(callback)
+   response listener
 
 
+store.getState()
+   To read the entire app state.
+.....................................................................................
+			   Redux project setup
+.....................................................................................
+
+Incase old react project:
+
+ npm install redux react-redux  
+
+in case new project
+
+ npx create-react-app myapp  --template redux
 
 
+appState={
+  r: {}
+}
 
 
+import React from 'react';
+import { configureStore } from '@reduxjs/toolkit';
+import { createRoot } from 'react-dom/client';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+/////////////////////////////////////////////////////////////////////////////////////
+//Redux
+//1.reducer
+// state= The reducer state- inital state
+// action => the Request object {type:'counter/nameoftheaction'}
+const CounterReducer = (state = { counter: 10 }, action) => {
+    switch (action.type) {
+        case 'counter/increment':
+            //immutable logic 
+            return { ...state, counter: state.counter + 1 }
+        case 'counter/decrement':
+            //immutable logic 
+            return { ...state, counter: state.counter - 1 }
+        default:
+            return state; //default state//initali state would be render during inital render
+    }
+}
+//create Store object .
+const appStore = configureStore({
+    reducer: {
+        counterReducer: CounterReducer
+    }
+})
+
+//React
+
+const Counter = props => {
+    //useSelect will filter state based on reducer
+    //appState.reducer.state
+    const counter = useSelector(appState => {
+        console.log(appState.counterReducer)
+        return appState.counterReducer.counter
+    })
+    //Get the Dispatcher
+    const dispatch = useDispatch()
+
+    const onIncrement = evt => {
+        //trigger reducer biz logic
+        const incrementAction = {
+            type: 'counter/increment'
+        }
+        dispatch(incrementAction)
+    }
+
+    return <div>
+        <h1>Counter {counter}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => {
+            dispatch({ type: 'counter/decrement' })
+        }}>-</button>
+    </div>
+
+}
 
 
+/////////////////////////////////////////////////////////////////////////////////////
+const App = () => <div style={{ margin: 50, padding: 50, backgroundColor: 'ButtonFace' }}>
+    <Provider store={appStore}>
+        <h1 style={{ textAlign: 'center' }}>React Redux Integration App</h1>
+        <Counter />
+    </Provider>
+
+</div>
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<App />);
+...................................................................................
+			 Code Structure
 
 
+src/features/counter
+
+counter.reducer.js
+
+const CounterReducer = (state = { counter: 10 }, action) => {
+    switch (action.type) {
+        case 'counter/increment':
+            //immutable logic 
+            return { ...state, counter: state.counter + 1 }
+        case 'counter/decrement':
+            //immutable logic 
+            return { ...state, counter: state.counter - 1 }
+        default:
+            return state; //default state//initali state would be render during inital render
+    }
+}
+export { CounterReducer }
+
+counter.jsx
+import { useSelector, useDispatch } from 'react-redux';
+
+const Counter = props => {
+    //useSelect will filter state based on reducer
+    //appState.reducer.state
+    const counter = useSelector(appState => {
+        console.log(appState.counterReducer)
+        return appState.counterReducer.counter
+    })
+    //Get the Dispatcher
+    const dispatch = useDispatch()
+
+    const onIncrement = evt => {
+        //trigger reducer biz logic
+        const incrementAction = {
+            type: 'counter/increment'
+        }
+        dispatch(incrementAction)
+    }
+
+    return <div>
+        <h1>Counter {counter}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => {
+            dispatch({ type: 'counter/decrement' })
+        }}>-</button>
+    </div>
+
+}
+export { Counter }
+
+
+src/app/store.js
+import { configureStore } from '@reduxjs/toolkit';
+import { CounterReducer } from '../features/counter/counter.reducer';
+
+export const appStore = configureStore({
+    reducer: {
+        counterReducer: CounterReducer
+    }
+})
+
+src/index.js
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { appStore } from './app/store'
+import { Counter } from './features/counter/counter';
+
+/////////////////////////////////////////////////////////////////////////////////////
+const App = () => <div style={{ margin: 50, padding: 50, backgroundColor: 'ButtonFace' }}>
+    <Provider store={appStore}>
+        <h1 style={{ textAlign: 'center' }}>React Redux Integration App</h1>
+        <Counter />
+    </Provider>
+</div>
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<App />);
+.................................................................................
+			  Actions
+
+actions names should not be hard coded
+src/features/counter/counter.actions.js
+export const incrementAction = 'counter/increment'
+export const decrementAction = 'counter/decrement'
+
+Useage
+
+import { incrementAction, decrementAction } from "./counter.actions";
+
+const CounterReducer = (state = { counter: 10 }, action) => {
+    switch (action.type) {
+        case incrementAction:
+            //immutable logic 
+            return { ...state, counter: state.counter + 1 }
+        case decrementAction:
+            //immutable logic 
+            return { ...state, counter: state.counter - 1 }
+        default:
+            return state; //default state//initali state would be render during inital render
+    }
+}
+export { CounterReducer }
+
+...................................................................................
+			How to send Input to the Reducer -payload
+...................................................................................
+
+src/features/counter/counter.actions.js
+export const incrementByAmount = 'counter/incrementByAmount'
+
+counter.reducer.js
+import { incrementAction, decrementAction, incrementByAmount } from "./counter.actions";
+
+
+const CounterReducer = (state = { counter: 10 }, action) => {
+    switch (action.type) {
+        case incrementAction:
+            //immutable logic 
+            return { ...state, counter: state.counter + 1 }
+        case decrementAction:
+            //immutable logic 
+            return { ...state, counter: state.counter - 1 }
+        case incrementByAmount:
+            //immutable logic 
+            return { ...state, counter: state.counter + action.payload }
+        default:
+            return state; //default state//initali state would be render during inital render
+    }
+}
+export { CounterReducer }
+
+counter.jsx
+import { useSelector, useDispatch } from 'react-redux';
+import { decrementAction, incrementAction, incrementByAmount } from "./counter.actions";
+
+const Counter = props => {
+    //useSelect will filter state based on reducer
+    //appState.reducer.state
+    const counter = useSelector(appState => {
+        console.log(appState.counterReducer)
+        return appState.counterReducer.counter
+    })
+    //Get the Dispatcher
+    const dispatch = useDispatch()
+
+    const onIncrement = evt => {
+        dispatch({ type: incrementAction })
+    }
+
+    return <div>
+        <h1>Counter {counter}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => {
+            dispatch({ type: decrementAction })
+        }}>-</button>
+
+        <button onClick={() => {
+            dispatch({ type: incrementByAmount, payload: 2 })
+        }}>IncrementBy2</button>
+    </div>
+
+}
+export { Counter }
+
+.....................................................................................				 Breaking the Component into Two
+
+Counter.jsx
+import { useSelector, useDispatch } from 'react-redux';
+import { CounterDashBoard } from './counterdashboard';
+
+//Higher Order Component
+//This Component only Subscribes state as prop and dispatch as Prop 
+//and again its as prop to another child  child
+const Counter = props => {
+    const counter = useSelector(appState => appState.counterReducer.counter)
+    return <CounterDashBoard counter={counter} />
+}
+export { Counter }
+
+CounterDashBoard.jsx
+import { decrementAction, incrementAction, incrementByAmount } from "./counter.actions";
+import { useDispatch } from 'react-redux';
+
+
+const CounterDashBoard = props => {
+    const dispatch = useDispatch()
+    const onIncrement = () => {
+        dispatch({ type: incrementAction })
+    }
+    return <div>
+        <h1>Counter {props.counter}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={() => {
+            dispatch({ type: decrementAction })
+        }}>-</button>
+
+        <button onClick={() => {
+            dispatch({ type: incrementByAmount, payload: 2 })
+        }}>IncrementBy2</button>
+    </div>
+}
+export { CounterDashBoard }
+....................................................................................
+			 Multi Reducer
+
+please refer code base
 
 
 
