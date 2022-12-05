@@ -2,7 +2,6 @@ import React from 'react';
 import { configureStore } from '@reduxjs/toolkit';
 import { createRoot } from 'react-dom/client';
 import { Provider, useSelector, useDispatch } from 'react-redux';
-import produce from 'immer';
 /////////////////////////////////////////////////////////////////////////////////////
 const profile = {
     id: 1,
@@ -24,22 +23,18 @@ const ProfileReducer = (state = profile, action) => {
     switch (action.type) {
         case 'profile/update':
             //state.address.city ='Delhi'
-            // return {
-            //     ...state,
-            //     address: {
-            //         ...state.address,
-            //         city: action.payload
-            //     }
-            // }
-            return produce(state, draft => {
-                console.log(draft)
-                draft.address.city = action.payload
-            })
-        case 'profile/like':
-
-
             return {
                 ...state,
+                address: {
+                    ...state.address,
+                    city: action.payload
+                }
+            }
+        case 'profile/like':
+
+           
+            return {
+                ...state,                
                 skill: {
                     ...state.skill,
                     ui: {
