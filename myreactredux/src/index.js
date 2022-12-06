@@ -1,105 +1,93 @@
-import React from 'react';
-import { configureStore } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, configureStore } from '@reduxjs/toolkit'
+import { useEffect } from 'react'
+import { useDispatch, useSelector, Provider } from 'react-redux'
 import { createRoot } from 'react-dom/client';
-import { Provider, useSelector, useDispatch } from 'react-redux';
-import produce from 'immer';
-/////////////////////////////////////////////////////////////////////////////////////
-const profile = {
-    id: 1,
-    name: 'Subramanian',
-    address: {
-        state: 'Tamil Nadu',
-        city: 'coimbatore',
-        pincode: '6111 111'
-
-    },
-    skill: {
-        ui: {
-            subject: 'react',
-            points: 10
-        }
-    }
-};
-const ProfileReducer = (state = profile, action) => {
-    switch (action.type) {
-        case 'profile/update':
-            //state.address.city ='Delhi'
-            // return {
-            //     ...state,
-            //     address: {
-            //         ...state.address,
-            //         city: action.payload
-            //     }
-            // }
-            return produce(state, draft => {
-                console.log(draft)
-                draft.address.city = action.payload
-            })
-        case 'profile/like':
 
 
-            return {
-                ...state,
-                skill: {
-                    ...state.skill,
-                    ui: {
-                        ...state.skill.ui,
-                        points: state.skill.ui.points + 2
-                    }
-                }
-            }
-
-        default:
-            return state;
-    }
+const initialState = {
+    entities: [],
+    error: null,
+    loading: false,
 }
-//create Store object .
+
+//here it returns promise with different states pending,rejected,fullfiled
+//middleware logic
+const getPosts = createAsyncThunk(
+    'posts/getPosts',
+    async (input, thunkAPI) => {
+        console.log('thunkApi', thunkAPI)
+        const url = 'https://jsonplaceholder.typicode.com/posts'
+        const res = await (await fetch(url)).json()
+        return res
+    }
+)
+//get By Id
+const getPostsById = createAsyncThunk('posts/getPosts',
+    async (id, thunkAPI) => {
+        console.log('thunkApi', thunkAPI)
+        const url = `https://jsonplaceholder.typicode.com/posts/${id}`
+        const res = await (await fetch(url)).json()
+        return res
+    }
+)
+
+export const postSlice = createSlice({
+    name: 'posts',
+    initialState,
+    reducers: {},
+    extraReducers: {
+        //'posts/requestStatus/pending'
+        [getPosts.pending]: (state) => {
+            console.log('pending')
+            state.loading = true
+        },
+        //'posts/requestStatus/pending'
+
+        [getPosts.fulfilled]: (state, { payload }) => {
+            console.log('done')
+            state.loading = false
+            state.entities = payload
+        },
+        [getPosts.rejected]: (state) => {
+            console.log('rejected')
+            state.loading = false
+            // state.error = action.error
+        },
+    },
+})
+export const postReducer = postSlice.reducer
+
+
 const appStore = configureStore({
     reducer: {
-        profile: ProfileReducer
+        posts: postReducer
     }
 })
-
-//React
-
-const Profile = props => {
-
-    const profile = useSelector(appState => {
-        return appState.profile
-    })
-    console.log(profile.skill.ui.points)
-
-    //Get the Dispatcher
+export default function Posts() {
     const dispatch = useDispatch()
+    const { entities, loading } = useSelector((state) => state.posts)
 
+    useEffect(() => {
+        //start async call - dispatch()
+        dispatch(getPosts())
+    }, [])
 
-    return <div>
-        <h1>Profile Information</h1>
+    if (loading) return <p>Loading...</p>
+
+    return (
         <div>
-            <p>Id {profile.id}</p>
-            <p>Name {profile.name}</p>
-            <p>City {profile.address.city}</p>
-            <h2>Skill</h2>
-            <p>Subject {profile.skill.ui.subject}</p>
-            <p>Points {profile.skill.ui.points}</p>
-
+            <h2>Blog Posts</h2>
+            {entities.map((post) => (
+                <p key={post.id}>{post.title}</p>
+            ))}
         </div>
-        <button onClick={() => {
-            dispatch({ type: 'profile/update', payload: 'Chennai' })
-        }}>UpdateCity</button>
-        <button onClick={() => {
-            dispatch({ type: 'profile/like' })
-        }}>Likes</button>
-    </div>
-
+    )
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////
 const App = () => <div style={{ margin: 50, padding: 50, backgroundColor: 'ButtonFace' }}>
     <Provider store={appStore}>
         <h1 style={{ textAlign: 'center' }}>React Redux Integration App</h1>
-        <Profile />
+        <Posts />
     </Provider>
 
 </div>
