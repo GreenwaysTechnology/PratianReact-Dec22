@@ -3449,21 +3449,338 @@ const root = createRoot(container);
 
 root.render(<App />);
 ..............................&&&&&&&&&&&&&&&&&&&....................................
-				Routing
+				Routing - SPA 
 ....................................................................................
 
-Routing + React+ Redux
-			
+Navigation:
+  Moving among pages.
+Types of Routing/Navigation:
+
+1.Server Side Routing
+    Routing is controlled by servers
+ 
+2.Client side Routing
+    Client side routing totally controlled by browser
+ In 2007,W3c proposed the programming called 'SPA'
+ W3c introduced browser apis to navigate between pages.
+
+Core concepts in Routing:
+1.URL
+  :The address in the address bar.
+URL syntax:
+  http://www.example.com/users.html / logo.png -  static url
+  http://www.example.com/users.aspx | jsp | php - dynamic content generation url
+  http://www.example.com/users   - webservice url -  REST apis
+
+Client side Url: hashbang urls - spa
+http://www.example.com/index.html#home
+http://www.example.com/index.html#users
+
+http://www.example.com/home
+	
+2.Location:
+  It is browser object called window.location, it represents "Where the users is at"
+  Generall it represents url with more information.
+  In react-router this object is represented to get url informations like so...
+
+3.History Stack:
+  As user navigates, the browser keeps track of each location in a stack.
+
+4.History :
+   It is js object that allows react router to subscribe to changes in the URL as well as providing apis to manipulate the browser stack programmatically.
+
+..................................................................................
+				React Router
+It is a lib/framework provided by third for building single page apps.			
+
+npm i react-router-dom --save
+
+Core Concepts in React Router:
+
+Types of Routers
+
+ 1.BrowserRouter
+ 2.MemoryRouter
+ 3.HashRouter
+ 4.StaticRouter
+ 5.NativeRouter
+
+In React router these are built in components.
+
+Apis to create Routers:
+
+1.createBrowserRouter
+2.createMemoryRouter
+3.createHashRouter.
+
+
+How to integrate Router in app?
+
+Note:
+  Router Must be top level compoent
+
+  <BrowserRouter>
+
+  </BrowserRouter>
+
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+
+const Home = () => {
+    return <h1>Home</h1>
+}
+
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <BrowserRouter>
+            <Home/>
+    </BrowserRouter>
+</div>
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<App />);
+
+const styles = {
+    container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
+}
+.....................................................................................
+
+Routes:
+   It is top level component which renders list of routes
+
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <BrowserRouter>
+        <Routes>
+            
+        </Routes>
+    </BrowserRouter>
+</div>
+
+Route:
+  It is a component which renders "any Component" by matching URLs
+ 
+How to render components against urls?
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+
+const Home = () => {
+    return <h1>Home</h1>
+}
+const UserList = () => {
+    return <div>
+        <h2>User List</h2>
+    </div>
+}
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <BrowserRouter>
+        <Routes>
+            {/* Map Urls aginst compoents */}
+            <Route path="/" element={<Home />} />
+            <Route path="/users" element={<UserList />} />
+        </Routes>
+    </BrowserRouter>
+</div>
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<App />);
+
+const styles = {
+    container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
+}
+
+Testing:
+ http://localhost:3000/users
+....................................................................................
+		 How to add navigation links accordingly navigate
+
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+
+
+const Home = () => {
+    return <h1>Home</h1>
+}
+const UserList = () => {
+    return <div>
+        <h2>User List</h2>
+    </div>
+}
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <BrowserRouter>
+        <nav>
+            <ul>
+                <li>
+                    <Link to="/">Home</Link>
+                </li>
+                <li>
+                    <Link to="/users">Users</Link>
+                </li>
+            </ul>
+        </nav>
+        <hr />
+        <Routes>
+            {/* Map Urls aginst compoents */}
+            <Route path="/" element={<Home />} />
+            <Route path="/users" element={<UserList />} />
+        </Routes>
+    </BrowserRouter>
+</div>
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<App />);
+
+const styles = {
+    container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
+}
+...................................................................................
+			  Redux + Router
+
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import produce from 'immer';
+import "./list.css"
+import './index.css';
+/////////////////////////////////////////////////////////////////////////////////
+
+const products = [{
+    id: 1,
+    name: 'IPhone',
+    qty: 10
+},
+{
+    id: 2,
+    name: 'Google Pixel',
+    qty: 40
+}
+
+]
+const CartReducer = (state = products, action) => {
+    switch (action.type) {
+        case 'cart/incrementqty':
+            return produce(state, draft => {
+                draft[action.payload].qty += 1
+            })
+        case 'cart/decrementqty':
+            return produce(state, draft => {
+                if (draft[action.payload].qty > 1) {
+                    draft[action.payload].qty -= 1
+                }
+            })
+        default:
+            return state
+    }
+}
+//create Store object .
+const appStore = configureStore({
+    reducer: {
+        cart: CartReducer
+    }
+})
+////
+const Cart = props => {
+
+    const cart = useSelector(appState => {
+        return appState.cart
+    })
+
+    //Get the Dispatcher
+    const dispatch = useDispatch()
+
+
+    return <div>
+        <h1>Cart</h1>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Qty</th>
+                <th>CartAction</th>
+            </tr>
+            <tbody>
+                {
+                    cart.map((product, index) => {
+                        return <>
+                            <tr>
+                                <td>{product.id}</td>
+                                <td>{product.name}</td>
+                                <td>{product.qty}</td>
+                                <td style={{ paddingLeft: 40 }}>
+                                    <button onClick={() => {
+                                        dispatch({ type: 'cart/incrementqty', payload: index })
+                                    }}>+</button>
+                                    <button onClick={() => {
+                                        dispatch({ type: 'cart/decrementqty', payload: index })
+                                    }}>-</button>
+                                </td>
+
+                            </tr>
+                        </>
+                    })
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+}
 
 
 
+const Home = () => {
+    return <h1>Home</h1>
+}
+const UserList = () => {
+    return <div>
+        <h2>User List</h2>
+    </div>
+}
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <Provider store={appStore}>
+        <BrowserRouter>
+            <nav>
+                <ul>
+                    <li>
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/users">Users</Link>
+                    </li>
+                    <li>
+                        <Link to="/cart">Cart</Link>
+                    </li>
+                </ul>
+            </nav>
+            <hr />
+            <Routes>
+                {/* Map Urls aginst compoents */}
+                <Route path="/" element={<Home />} />
+                <Route path="/users" element={<UserList />} />
+                <Route path="/cart" element={<Cart />} />
+            </Routes>
+        </BrowserRouter>
+    </Provider>
+</div>
 
+const container = document.getElementById('root');
+const root = createRoot(container);
 
+root.render(<App />);
 
-
-
-
-
-
-
+const styles = {
+    container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
+}
 

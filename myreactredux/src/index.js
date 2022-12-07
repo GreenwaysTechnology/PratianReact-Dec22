@@ -1,97 +1,141 @@
-import { createSlice, createAsyncThunk, configureStore } from '@reduxjs/toolkit'
-import { useEffect } from 'react'
-import { useDispatch, useSelector, Provider } from 'react-redux'
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import produce from 'immer';
+import "./list.css"
+import './index.css';
+/////////////////////////////////////////////////////////////////////////////////
 
-
-const initialState = {
-    entities: [],
-    error: null,
-    loading: false,
+const products = [{
+    id: 1,
+    name: 'IPhone',
+    qty: 10
+},
+{
+    id: 2,
+    name: 'Google Pixel',
+    qty: 40
 }
 
-//here it returns promise with different states pending,rejected,fullfiled
-//middleware logic
-const getPosts = createAsyncThunk(
-    'posts/getPosts',
-    async (input, thunkAPI) => {
-        console.log('thunkApi', thunkAPI)
-        const url = 'https://jsonplaceholder.typicode.com/posts'
-        const res = await (await fetch(url)).json()
-        return res
+]
+const CartReducer = (state = products, action) => {
+    switch (action.type) {
+        case 'cart/incrementqty':
+            return produce(state, draft => {
+                draft[action.payload].qty += 1
+            })
+        case 'cart/decrementqty':
+            return produce(state, draft => {
+                if (draft[action.payload].qty > 1) {
+                    draft[action.payload].qty -= 1
+                }
+            })
+        default:
+            return state
     }
-)
-//get By Id
-const getPostsById = createAsyncThunk('posts/getPosts',
-    async (id, thunkAPI) => {
-        console.log('thunkApi', thunkAPI)
-        const url = `https://jsonplaceholder.typicode.com/posts/${id}`
-        const res = await (await fetch(url)).json()
-        return res
-    }
-)
-
-export const postSlice = createSlice({
-    name: 'posts',
-    initialState,
-    reducers: {},
-    extraReducers: {
-        //'posts/requestStatus/pending'
-        [getPosts.pending]: (state) => {
-            console.log('pending')
-            state.loading = true
-        },
-        //'posts/requestStatus/pending'
-
-        [getPosts.fulfilled]: (state, { payload }) => {
-            console.log('done')
-            state.loading = false
-            state.entities = payload
-        },
-        [getPosts.rejected]: (state) => {
-            console.log('rejected')
-            state.loading = false
-            // state.error = action.error
-        },
-    },
-})
-export const postReducer = postSlice.reducer
-
-
+}
+//create Store object .
 const appStore = configureStore({
     reducer: {
-        posts: postReducer
+        cart: CartReducer
     }
 })
-export default function Posts() {
+////
+const Cart = props => {
+
+    const cart = useSelector(appState => {
+        return appState.cart
+    })
+
+    //Get the Dispatcher
     const dispatch = useDispatch()
-    const { entities, loading } = useSelector((state) => state.posts)
 
-    useEffect(() => {
-        //start async call - dispatch()
-        dispatch(getPosts())
-    }, [])
 
-    if (loading) return <p>Loading...</p>
+    return <div>
+        <h1>Cart</h1>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Qty</th>
+                <th>CartAction</th>
+            </tr>
+            <tbody>
+                {
+                    cart.map((product, index) => {
+                        return <>
+                            <tr>
+                                <td>{product.id}</td>
+                                <td>{product.name}</td>
+                                <td>{product.qty}</td>
+                                <td style={{ paddingLeft: 40 }}>
+                                    <button onClick={() => {
+                                        dispatch({ type: 'cart/incrementqty', payload: index })
+                                    }}>+</button>
+                                    <button onClick={() => {
+                                        dispatch({ type: 'cart/decrementqty', payload: index })
+                                    }}>-</button>
+                                </td>
 
-    return (
-        <div>
-            <h2>Blog Posts</h2>
-            {entities.map((post) => (
-                <p key={post.id}>{post.title}</p>
-            ))}
-        </div>
-    )
+                            </tr>
+                        </>
+                    })
+                }
+            </tbody>
+        </table>
+
+    </div>
+
 }
 
-const App = () => <div style={{ margin: 50, padding: 50, backgroundColor: 'ButtonFace' }}>
-    <Provider store={appStore}>
-        <h1 style={{ textAlign: 'center' }}>React Redux Integration App</h1>
-        <Posts />
-    </Provider>
 
+
+const Home = props => {
+    return <h1>{props.title}</h1>
+}
+//default Props
+Home.defaultProps = {
+    title: 'Home'
+}
+const UserList = () => {
+    return <div>
+        <h2>User List</h2>
+    </div>
+}
+const App = () => <div style={styles.container}>
+    <h1 style={{ textAlign: 'center' }}>React Router Integration</h1>
+    <Provider store={appStore}>
+        <BrowserRouter>
+            <nav>
+                <ul>
+                    <li>
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/users">Users</Link>
+                    </li>
+                    <li>
+                        <Link to="/cart">Cart</Link>
+                    </li>
+                </ul>
+            </nav>
+            <hr />
+            <Routes>
+                {/* Map Urls aginst compoents */}
+                <Route path="/" element={<Home title="MyShopping App" />} />
+                <Route path="/users" element={<UserList />} />
+                <Route path="/cart" element={<Cart />} />
+            </Routes>
+        </BrowserRouter>
+    </Provider>
 </div>
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 
 root.render(<App />);
+
+const styles = {
+    container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
+}
