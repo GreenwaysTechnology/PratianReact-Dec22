@@ -3783,4 +3783,367 @@ root.render(<App />);
 const styles = {
     container: { margin: 50, padding: 50, backgroundColor: 'ButtonFace' }
 }
+.....................................................................................
+			 Next.js - React Framework For production
+.....................................................................................
+
+What is Next?
+  Next is a javascript built on the top of React.
+
+Building blocks of any web app:
+
+1.User interface
+    Where user interact, user will consume data and send data.
+
+2.Routing
+   How users navigate between different parts of your app.
+
+3.Data Fetching
+   where your data lives, from where you have fetch data - communicating with rest apis
+
+4.integrations
+   your app may integrate with thrid party services like cloud, cms,payment gatways
+
+5.infrastructure
+    where to deploy, store and run your app code - edge,cdn,serverless
+
+6.Performance 
+   How to optimize your application for end-users
+
+7.scalability
+   how to scale apps when request grows
+
+8.Developer experience
+   standards,maintaince,bug fixing
+
+What is React?
+  React is javascript lib for building "user interfaces"
+
+What is Next?
+   Next is react framework that gives you building blocks to create web apps
+   Next is "battries included" react framework.
+ 
+Next includes many features.
+
+1.Next offers built in routing based on the concept called "file based routing"
+2.Pre-rendering - pre compilation of code , creates html on the server side inside of client side
+
+Traditional work flow
+
+ html
+
+page.html -source code
+  <body>
+      <div>
+        <ul>
+	   <li>one</li>
+	   <li>two</li>
+        </ul>
+      </div>
+  </body>
+
+
+parsed code - lexical code - asicii code
+ body
+      div
+        ul
+	   li one li
+	   li two li
+        ul
+      div
+   body
+
+...................................................................................
+
+3.API routes:
+   native rest apis if you want to build you can.
+  Next provides built in rest api servers
+
+Based on this idea, next can be thought as " server side web frameworks like aspx,jsp,php"
+  View(react) + api layer(next api)
+
+4.Support for CSS modules
+
+5.Authentication integration feature like firebase
+
+6.Dev and prod build system.
+
+7.Enable features related search engines.
+.....................................................................................
+				Next js project setup
+.....................................................................................
+
+ways to install dependencies:
+
+1.npm or yarn
+  npm create-next-app@latest --global
+2.npx 
+   npx create-next-app@latest appName --typescript
+   npx create-next-app@latest appName 
+
+Folder structure:
+
+pages
+  -It mimics the routes
+ next is file based routing, meaning you dont need to configure routes manually.
+
+ lets say file name is index.js  which is mapped against = '/'
+
+pages
+  -api  
+    -hello.ts -
+api folder which is used to integrate rest api / graphql api.
+ It is optional folder and file only.
+
+_app.tsx
+   - root file, takes the compoent(page) as prop, renders/prepares at the server side.
+  - we dont need to configure anything, execept redux integration.
+
+index.tsx
+   this is root page(component), automatically mapped to "index route".
+
+Every page must used "export default" in order to share the page.
+
+....................................................................................
+			 Routing in Next Js
+....................................................................................
+
+Default Route/index route/Home Route.
+.....................................
+
+index.js | index.tsx
+
+//Home Page
+
+const HomePage = props => {
+  return <div>
+    <h1>Welcome to Next Js!</h1>
+  </div>
+}
+
+export default HomePage;
+
+How to create different pages and enable routing?
+
+pages/about.tsx
+
+const AboutPage = props => {
+    return <div>
+        <p>Ramboll is a global architecture, engineering and consultancy company founded in Denmark in 1945. Our 16,500 experts create sustainable solutions across globe</p>
+    </div>
+}
+export default AboutPage
+
+http://localhost:3000/about
+...................................................................................
+			  Routing with modularity
+
+Every app is based on modularity.
+ folder and file based modularity
+
+pages
+  |
+  posts - folder
+    |
+    postlist.tsx
+
+now folder is considered as "root"  /posts
+
+ file is considered as "sub route"  /posts/postlist.tsx
+
+http://localhost:3000/posts/postslist
+ .................................................................................
+		  index page for domain features
+
+pages
+  |
+  posts
+
+here 
+ /posts means i have to render default landing page
+
+pages
+  |
+  posts
+   |
+   index.ts
+
+
+...................................................................................
+			How to link the compoents with Pages
+....................................................................................
+
+features/counter/counter.tsx
+
+import { useState } from "react"
+
+const Counter = props => {
+    const [counter, setCounter] = useState(0)
+
+    return <div>
+        <h1>Counter {counter}</h1>
+        <button onClick={() => {
+            setCounter(counter + 1)
+        }}>+</button>
+    </div>
+}
+
+export { Counter }
+
+pages/
+  counter/index.tsx
+import { Counter } from "../../features/counter/coutner"
+
+
+const CounterPage = props => {
+    return <div>
+         <Counter/>
+    </div>
+}
+export default CounterPage
+
+http://localhost:3000/counter
+....................................................................................
+			How to add Nav Bar?
+
+As of now , we have tested in the browser url.
+
+We need nav bar?
+
+Where we can add master nav bar?
+   -The first Landing page / Home Page
+
+ //Home Page
+import Link from "next/link";
+
+const HomePage = props => {
+  return <div>
+    <h1>Welcome to Next Js!</h1>
+    <nav>
+      <ul>
+        <li>
+          <Link href={"/about"}>
+            <span>About</span>
+          </Link>
+        </li>
+        <li>
+          <Link href={"/posts"}>
+            <span>Posts</span>
+          </Link>
+        </li>
+        <li>
+          <Link href={"/counter"}>
+            <span>Counter</span>
+          </Link>
+        </li>
+      </ul>
+    </nav>
+    <hr />
+  </div >
+}
+
+export default HomePage;
+.....................................................................................
+			  Integration with Redux
+
+pages/_app.tsx
+
+import '../styles/globals.css'
+import type { AppProps } from 'next/app'
+import { Provider } from 'react-redux'
+import { appStore } from '../store'
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Provider store={appStore}>
+    <Component {...pageProps} />
+  </Provider>
+}
+
+features/counter/counter.ts -  reducer
+import { createSlice } from '@reduxjs/toolkit';
+
+const initialState = {
+    value: 10
+}
+//action  =  'sliceName/reducerName'
+const counterSlice = createSlice({
+    name: 'counter',
+    initialState,
+    reducers: {
+        increment(state) {
+            state.value++
+        },
+        decrement(state) {
+            state.value--
+        },
+        incrementByAmount(state, action) {
+            state.value += action.payload
+        }
+    }
+})
+export const { increment, decrement, incrementByAmount } = counterSlice.actions
+export const counterReducer = counterSlice.reducer
+
+features/counter/counter.tsx
+import { useSelector, useDispatch } from 'react-redux';
+import { increment, decrement, incrementByAmount } from "./counterSlice";
+
+const Counter = props => {
+
+    const value = useSelector(state => state.counter.value);
+    const dispatch = useDispatch();
+
+    return <>
+        <h1>Counter Increment Value : {value}</h1>
+        <button onClick={() => {
+            dispatch(increment())
+        }}>Increment</button>
+        <button onClick={() => {
+            dispatch(decrement())
+        }}>Decrement</button>
+        <button onClick={() => {
+            dispatch(incrementByAmount(2))
+        }}>IncrementByAmount</button>
+    </>
+}
+
+export { Counter }
+
+pages/counter/index.tsx
+import { Counter } from "../../features/counter/coutner"
+
+
+const CounterPage = props => {
+    return <div>
+         <Counter/>
+    </div>
+}
+export default CounterPage
+....................................................................................
+
+Task:
+
+ User
+   |
+   index.tsx -Registeration form
+   
+    userName
+    emailid
+    city -  select city from the select box
+    zipcode
+
+ submit - button
+   
+ ajax call to register user - save user after saving the server returns response,
+based on the response you need to display the registration information
+  
+You must use Redux-toolkit - createAsyncThunk-Reducer
+
+
+
+
+				
+
+
+
 
