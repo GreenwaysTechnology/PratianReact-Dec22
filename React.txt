@@ -4138,11 +4138,264 @@ Task:
 based on the response you need to display the registration information
   
 You must use Redux-toolkit - createAsyncThunk-Reducer
+...................................................................................
+			  Nested Router
 
 
+The router supports nested files. If you create a nested folder structure, files will automatically be routed in the same way still.
+
+pages/blog/first-post.js → /blog/first-post
+pages/dashboard/settings/username.js → /dashboard/settings/username
 
 
-				
+eg:
+
+pages/index.tsx
+//Home Page
+import Link from "next/link";
+
+const HomePage = props => {
+  return <div>
+    <h1>Welcome to Next Js!</h1>
+    <nav>
+      <ul>
+        <li>
+          <Link href={"/blog"}>
+            <span>Blog</span>
+          </Link>
+        </li>
+      </ul>
+    </nav>
+    <hr />
+  </div >
+}
+
+export default HomePage;	
+pages/blog/index.tsx
+
+import Link from "next/link";
+import { useRouter } from "next/router"
+
+
+const Blog = props => {
+    const router = useRouter()
+    console.log(router)
+    return <div>
+        <nav>
+            <ul>
+                <li>
+                    <Link href={`${router.pathname}/first-post`}>
+                        <span>FirstPost</span>
+                    </Link>
+                </li>
+                <li>
+                    <Link href={`${router.pathname}/second-post`}>
+                        <span>SecondPost</span>
+                    </Link>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
+export default Blog
+
+sub pages 
+pages/blog/first-post.tsx
+
+
+const FirstPost = props => {
+    return <div>
+        <p>Ramboll is a global architecture, engineering and consultancy company founded in Denmark in 1945. Our 16,500 experts create sustainable solutions across globe</p>
+    </div>
+}
+export default FirstPost
+
+pages/blog/second-post.tsx
+
+const SecondPost = props => {
+    return <div>
+        <p>Ramboll is a global architecture, engineering and consultancy company founded in Denmark in 1945. Our 16,500 experts create sustainable solutions across globe</p>
+    </div>
+}
+export default SecondPost
+....................................................................................
+			   Master -details Routes
+...................................................................................
+Dynamic Routes
+
+Defining routes by using predefined paths is not always enough for complex applications. In Next.js you can add brackets to a page ([param]) to create a dynamic route (a.k.a. url slugs, pretty urls, and others).
+
+Consider the following page pages/post/[pid].js:
+
+url pattern
+ pages/post/
+
+Root:
+
+pages/index.tsx
+   <li>
+          <Link href={"/blog"}>
+            <span>Blog</span>
+          </Link>
+        </li>
+      </ul>
+
+Master:
+blog/index.tsx
+import { useState, useEffect } from "react"
+import Link from 'next/link';
+import { useRouter } from "next/router"
+
+//error Component
+const ErrorMessage = props => <div>
+    {props.error}
+</div>
+const Spinner = props => <div>
+    <h2>Loading....</h2>
+</div>
+
+const Todos = props => {
+    const [items, setItems] = useState({
+        error: null, // error 
+        isLoaded: false, // spinner/loader
+        todos: [] // data
+    })
+    const router = useRouter()
+    //componentDidMount
+    useEffect(() => {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url)
+            .then(response => response.json())
+            .then(todos => {
+                //Change this code in simple way
+                setItems(previousState => {
+                    return {
+                        ...previousState,
+                        todos: previousState.todos.concat(todos),
+                        isLoaded: true
+                    };
+                });
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+    }, [])
+
+    const { error, isLoaded, todos } = items;
+    if (error) {
+        return <ErrorMessage error={error} />
+    } else if (!isLoaded) {
+        return <Spinner />
+    } else {
+        return <div>
+            {
+                todos.map(todo => <div key={todo.id}>
+                    <Link href={`${router.pathname}/${todo.id}`}>
+                        <span>{todo.title}</span>
+                    </Link>
+                </div>)
+            }
+        </div>
+    }
+}
+export default Todos
+
+
+pages/blog/[id].tsx
+
+
+import { useRouter } from 'next/router'
+
+const PostDetails = props => {
+    const router = useRouter()
+    const { id } = router.query
+
+    return <div>
+          <h1>{id} Post Details Page</h1>
+    </div>
+}
+export default PostDetails
+
+
+http://localhost:3000/blog
+
+http://localhost:3000/blog/12
+...................................................................................
+			  Catch all routes
+
+Dynamic routes can be extended to catch all paths by adding three dots (...) inside the brackets. For example:
+
+pages/post/[...slug].js matches /post/a, but also /post/a/b, /post/a/b/c and so on.
+
+
+eg:
+ pages/docs/[...params].tsx
+
+
+const DocsPage = props => {
+    return <div>
+        <p>Ramboll is a global architecture, engineering and consultancy company founded in Denmark in 1945. Our 16,500 experts create sustainable solutions across globe</p>
+    </div>
+}
+export default DocsPage
+
+Testing:
+http://localhost:3000/docs/feature1/concept1
+http://localhost:3000/docs/feature1
+.................................................................................
+				Query Params
+
+ <li>
+          <Link href={{
+            pathname: '/product',
+            query: {
+              sortBy: 'asc',
+              filterBy:'review'
+
+            }
+          }}>
+            <span>Product</span>
+          </Link>
+        </li>
+
+pages/product/index.tsx
+import { useRouter } from "next/router"
+
+
+const ProductPage = props => {
+    const router = useRouter()
+    const query = router.query
+    return <div>
+        {JSON.stringify(query)}
+    </div>
+}
+export default ProductPage
+
+http://localhost:3000/product?sortBy=asc&filterBy=review
+....................................................................................
+				Programmetic Navigation
+...................................................................................
+
+import { useRouter } from "next/router"
+
+
+const ProductPage = props => {
+    const router = useRouter()
+    const query = router.query
+    return <>
+        <p>{JSON.stringify(query)}</p>
+
+        <button onClick={() => {
+            router.push('/about')
+        }}>GoTo</button>
+    </>
+}
+export default ProductPage
+...................................................................................
+			Static Generation with getStaticProps
+
+Incase you pre render the page during build time, if you have any data to be fetched
 
 
 
